@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PassVault</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            width: 320px; /* Fixed width for the popup */
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+            background-color: #f3f4f6; /* Light gray background */
+        }
+        .container {
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #374151; /* Darker text for labels */
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db; /* Light gray border */
+            border-radius: 8px; /* Rounded corners */
+            box-sizing: border-box;
+            font-size: 14px;
+            color: #4b5563; /* Darker text for inputs */
+        }
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #6366f1; /* Indigo on focus */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* Soft focus shadow */
+        }
+        button {
+            width: 100%;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4f46e5; /* Indigo button */
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        }
+        button:hover {
+            background-color: #4338ca; /* Darker indigo on hover */
+            transform: translateY(-1px); /* Slight lift effect */
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .btn-secondary {
+            background-color: #6b7280; /* Gray for retrieve button */
+            margin-top: 10px;
+        }
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+        .message-box {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+        }
+        .message-box.success {
+            background-color: #d1fae5; /* Green for success */
+            color: #065f46;
+        }
+        .message-box.error {
+            background-color: #fee2e2; /* Red for error */
+            color: #991b1b;
+        }
+        .passwords-list {
+            margin-top: 20px;
+            max-height: 200px; /* Limit height for scrollable list */
+            overflow-y: auto; /* Enable vertical scrolling */
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: #ffffff;
+            padding: 10px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* Inner shadow */
+        }
+        .password-item {
+            background-color: #f9fafb; /* Light background for items */
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border: 1px solid #eff6ff;
+        }
+        .password-item:last-child {
+            margin-bottom: 0;
+        }
+        .password-item strong {
+            color: #1f2937; /* Darker text for website name */
+        }
+        .password-item p {
+            font-size: 13px;
+            color: #4b5563;
+            margin-top: 4px;
+        }
+        /* Custom scrollbar for webkit browsers */
+        .passwords-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        .passwords-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .passwords-list::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        .passwords-list::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .input-group {
+            position: relative;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6b7280;
+            font-size: 14px;
+            user-select: none; /* Prevent text selection */
+        }
+        .toggle-password:hover {
+            color: #374151;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container bg-white rounded-lg shadow-lg">
+        <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Save Passwords</h1>
+
+        <div class="form-group">
+            <label for="website">Website URL:</label>
+            <input type="text" id="website" class="w-full" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" class="w-full" placeholder="Enter username">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <div class="input-group">
+                <input type="password" id="password" class="w-full" placeholder="Enter password">
+                <span class="toggle-password" id="togglePassword">Show</span>
+            </div>
+        </div>
+
+        <button id="saveBtn" class="bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50">Save Password</button>
+        <button id="retrieveBtn" class="btn-secondary bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">Retrieve Passwords</button>
+
+        <div id="messageBox" class="message-box hidden"></div>
+
+        <div id="passwordsList" class="passwords-list hidden">
+            <h2 class="text-lg font-semibold text-gray-700 mb-3">Saved Passwords:</h2>
+            <!-- Passwords will be injected here by JavaScript -->
+            <div id="passwordsContainer"></div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
